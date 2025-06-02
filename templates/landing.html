@@ -1,0 +1,59 @@
+<!-- templates/landing.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gartic Code</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap"
+          rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/landing.css') }}" rel="stylesheet">
+</head>
+<body>
+<h1>Gartic Code</h1>
+<h2>Totally original idea</h2>
+<form method="POST" action="/" enctype="multipart/form-data">
+    <!-- Avatar Selector -->
+    <div class="avatar-selector">
+        <!-- Hidden preset field -->
+        <input type="hidden" id="avatarPreset" name="avatar_preset" value="">
+        <!-- File upload input (hidden) -->
+        <input id="avatarUpload" type="file" name="avatar_upload" accept="image/png, image/jpeg" class="file-upload">
+        <!-- Avatar display -->
+        <div class="avatar-wrapper">
+            <label for="avatarUpload" class="avatar-click-target">
+                <img id="avatarPreview" class="profile-pic"
+                     src="{{ url_for('static', filename='avatars/' ~ avatars[0].filename) }}" alt="Avatar Preview">
+            </label>
+        </div>
+        <!-- Arrow controls -->
+        <div class="arrow-container">
+            <button type="button" id="prevAvatar" class="arrow-btn">←</button>
+            <button type="button" id="nextAvatar" class="arrow-btn">→</button>
+        </div>
+    </div>
+
+    <!-- Nickname Input + Shuffle -->
+    <div class="nickname-container">
+        <input type="text" name="nickname" class="nickname-input"
+               placeholder="Enter nickname or leave empty for random">
+        <button type="button" id="nickname-button" class="shuffle-btn">Shuffle</button>
+    </div>
+
+    <!-- Room Controls -->
+    <div class="button-group">
+        <input type="text" name="room_code" class="join-input" placeholder="Enter Room Code" {% if prefill_code %} value="{{ prefill_code }}" {% endif %}/>
+        <button type="submit" name="action" value="join" class="btn btn-join">Join Room</button>
+        <button type="submit" name="action" value="create" class="btn btn-create">Create Room</button>
+    </div>
+</form>
+
+<!-- Pass avatars list to JS -->
+<script>
+    window.presetFilenames = {{ avatars | map(attribute='filename') | list | tojson }};
+    window.avatarBaseUrl  = "{{ url_for('static', filename='avatars/') }}";
+
+</script>
+<script src="/static/js/landing.js"></script>
+</body>
+</html>

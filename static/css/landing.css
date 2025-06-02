@@ -1,0 +1,169 @@
+ /* Reset */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 10% 20%, #7C3AED 0%, #4F46E5 100%);
+      font-family: 'Roboto', sans-serif;
+      color: #FFF;
+      text-align: center;
+    }
+    h1 {
+      font-family: 'Roboto Slab', serif;
+      font-size: 4rem;
+      letter-spacing: 0.5rem;
+    }
+    h2 {
+      font-size: 1.25rem;
+      margin-top: 1.5rem;
+      letter-spacing: 0.2rem;
+    }
+    form {
+      margin-top: 4.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .nickname-input {
+      width: 300px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      padding: 0 10px;
+      font-size: 1rem;
+    }
+    .avatar-grid {
+      display: none;
+    }
+    .avatar-img {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      border: 3px solid transparent;
+      transition: border-color 0.2s;
+      cursor: pointer;
+    }
+    .avatar-grid input:checked + .avatar-img { border-color: #E84545; }
+
+    .btn {
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.125rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-create { background-color: #E84545; color: #FFF; }
+    .join-input {
+      width: 200px;
+      height: 40px;
+      border-radius: 8px;
+      border: none;
+      padding: 0 10px;
+      font-size: 1rem;
+    }
+    .btn-join { background-color: #2B2E4A; color: #FFF; }
+
+  .avatar-wrapper {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+/* Keep input in DOM flow but invisible */
+.file-upload {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  z-index: -1;
+}
+
+/* Container ensures perfect circle and cropping */
+/*.profile-pic-container {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #E84545;
+  cursor: pointer;
+}
+*/
+
+/* Preview image */
+.profile-pic {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;             /* fill and crop */
+}
+
+/* Overlay icon centered */
+.upload-icon {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  color: #fff;
+  pointer-events: none;          /* let clicks pass through */
+}
+
+/* Container for circular cropping */
+.avatar-wrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;        /* perfect circle */
+  overflow: hidden;           /* crop overflowed image */
+  border: 3px solid #E84545;  /* coral red accent */
+  margin: 1rem auto;
+}
+
+.arrow-container{
+    display:flex;
+    width:fit-content;
+    height:fit-content;
+    gap:20px;
+    margin: 0 auto;
+}
+.arrow-container div{
+    width:max-content;
+}
+
+
+/* Preview image fits the container */
+.avatar-wrapper .profile-pic {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;         /* cover to maintain aspect ratio */
+}
+
+/* Hide native file input */
+.file-upload {
+  display: none;
+}
+
+/* Custom upload button */
+.upload-button {
+  display: block;
+  height:100%;
+  cursor:pointer;
+}
+
+/* Button group and other inputs reuse your existing theme */
+.button-group .btn-create { background-color: #E84545; color: #fff; }
+.button-group .btn-join   { background-color: #2B2E4A; color: #fff; }
+
+.button-inner-container{
+ display: flex;
+ flex-direction: column;
+ gap:0.5rem;
+}
+.button-group {
+      display: flex;
+      gap: 1rem;
+}

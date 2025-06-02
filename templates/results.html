@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Results - Gartic Code</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="results-header">
+    <h1>Winner!</h1>
+  </header>
+  <main class="results-container">
+    <section class="comparison">
+      <div class="original-prompt card">
+        <h2>Original Prompt</h2>
+        <p>{{ original_prompt }}</p>
+      </div>
+      <div class="your-guess card">
+        <h2>Your Guess</h2>
+        <p>{{ user_guess }}</p>
+      </div>
+    </section>
+    <section class="points-display">
+      <h2>Points Allocation</h2>
+      <ul class="points-list">
+        {% for player in players %}
+        <li class="point-item {% if player.winner %}winner{% endif %}">
+          <img src="{{ url_for('static', filename='avatars/' ~ player.avatar) }}" alt="Avatar" class="avatar-small">
+          <span class="nickname">{{ player.nickname }}</span>
+          <span class="points">{{ player.points }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    <section class="round-summary">
+      <h2>Round Summary</h2>
+      <ul class="scoreboard">
+        {% for player in players %}
+        <li>{{ player.nickname }}: {{ player.total_points }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

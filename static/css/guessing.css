@@ -1,0 +1,88 @@
+ /* Reset & Base */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: radial-gradient(circle at top left,
+        rgba(124,58,237,1) 0%,
+        rgba(79,70,229,1) 100%);
+      font-family: 'Roboto', sans-serif;
+      color: #333;
+    }
+
+    /* Header Timer */
+    header {
+      width: 100%;
+      padding: 20px 0;
+      text-align: center;
+    }
+    .timer {
+      font-family: 'Roboto Slab', serif;
+      font-weight: 700;
+      font-size: 2.5rem;
+      color: #E84545;
+    }
+
+    /* Main Container */
+    .guessing-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 90%;
+      max-width: 1000px;
+      margin: 20px 0;
+    }
+
+    /* Card Style Sections */
+    .code-display, .guess-input {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      width: 70%;
+    }
+    .code-display {
+      overflow: auto;
+    }
+
+    /* Syntax Highlighting */
+    pre { margin: 0; }
+    code[class*="language-"] {
+      font-family: Consolas, Menlo, monospace;
+      font-size: 1rem;
+    }
+
+    /* Guess Input */
+    .guess-input {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    .guess-input textarea {
+      width: 100%;
+      height: 80px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      resize: vertical;
+    }
+
+    /* Button */
+    .btn-submit {
+      background-color: #2B2E4A;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      width: 150px;
+      height: 40px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-submit:focus {
+      outline: 2px solid #E84545;
+    }

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game - Gartic Code</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="game-header">
+    <div class="round-indicator">Round {{ round_number }}</div>
+    <div class="countdown-timer" id="countdown-timer">{{ countdown }}</div>
+  </header>
+  <div class="game-layout">
+    <aside class="sidebar">
+      <ul class="player-points">
+        {% for player in players %}
+        <li class="player {{ 'active' if player.active else '' }}">
+          <img src="{{ url_for('static', filename='avatars/' ~ player.avatar) }}" alt="Avatar" class="player-avatar">
+          <span class="nickname">{{ player.nickname }}</span>
+          <span class="points">{{ player.points }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </aside>
+    <main class="main-content">
+      <section class="prompt-section">
+        <p>{{ prompt_text }}</p>
+      </section>
+      <section class="editor-section">
+        <div id="editor" class="code-editor"></div>
+        <div id="debug-console" class="debug-console"></div>
+        <button id="submit-code" class="btn btn-submit" disabled>Submit Code</button>
+      </section>
+    </main>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.js"></script>
+  <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+</body>
+</html>

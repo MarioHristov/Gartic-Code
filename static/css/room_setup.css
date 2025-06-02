@@ -1,0 +1,187 @@
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top left,
+        rgba(124,58,237,1) 0%,
+        rgba(79,70,229,1) 100%);
+      font-family: 'Roboto', sans-serif;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header { padding: 20px; }
+    h1 { font-family: 'Roboto Slab', serif; font-size: 2.5rem; color: #fff; }
+    .setup-container {
+      display: grid;
+      grid-template-columns: 30% 65%;
+      grid-template-areas: "lobby settings";
+      gap: 5%;
+      width: 90%;
+      max-width: 1400px;
+      margin: 20px 0;
+    }
+    .lobby-panel, .settings-panel {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    .lobby-panel { grid-area: lobby; }
+    .settings-panel { grid-area: settings; }
+    .player-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .player-slot {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      background: #f5f5f5;
+    }
+    .player-slot.filled { background: #e0ffe0; }
+    .slot-avatar {
+      width: 50px; height: 50px; border-radius: 50%;
+    }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; }
+    select, input[type="text"], .join-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .tags-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .tag-item input { margin-right: 5px; }
+    .invitation-section, .button-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin: 15px 0;
+    }
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+    }
+    .btn-invite { background-color: #2B2E4A; }
+    .btn-start { background-color: #E84545; }
+
+
+  /* option‐menu.css */
+.option-menu {
+  position: relative;
+  width: 300px;
+  border: 1px solid #333;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Top row: selected tags + add button */
+.option-menu .selected-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 5px;
+  min-height: 40px;
+  background: #fff;
+  cursor: pointer; /* indicates you can hover to open */
+}
+
+/* Tag pills */
+.option-menu .tag {
+  background: #E84545;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+.option-menu .tag .remove {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9em;
+  margin-left: 4px;
+}
+
+/* Add‐new button */
+.option-menu .overflow-indicator {
+  display:none;
+  background: #2B2E4A;
+  color: #fff;
+  border: none;
+  width: 30px; height: 30px;
+  border-radius: 4px;
+  font-size: 1.2em;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* The dropdown list */
+.option-menu .options-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  max-height: 200px;           /* adjust as needed */
+  overflow-y: auto;            /* scroll vertically */
+  background: #fff;
+  border: 1px solid #333;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  display: none;               /* hidden by default */
+  z-index: 100;
+}
+
+/* Show on hover of the container */
+.option-menu:hover .options-list {
+  display: block;
+}
+
+/* Each option row */
+.option-menu .option {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+.option-menu .option:last-child {
+  border-bottom: none;
+}
+.option-menu .option:hover {
+  background: #F5F5F5;
+}
+
+/* Mark selected options */
+.option-menu .option.selected {
+  font-weight: bold;
+}
+.option-menu .option .check {
+  float: right;
+  color: #2B2E4A;
+}
+.check{
+display:none;
+}
+.check.checked{
+ display:block;
+}
+#start-game{
+display:none;
+}

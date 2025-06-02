@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guessing - Gartic Code</title>
+  <link href="../static/css/guessing.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="guessing-header">
+    <div id="guessing-timer" class="timer">{{ timer }}</div>
+  </header>
+  <main class="guessing-container">
+    <section class="code-display" style="width: 70%; margin: 0 auto; background: #fff; padding: 20px; overflow: auto;">
+      <pre><code class="language-{{ code_language }}">{{ code_snippet }}</code></pre>
+    </section>
+    <section class="guess-input" style="width: 70%; margin: 20px auto; text-align: center;">
+      <textarea id="guess-text" class="form-control" placeholder="Enter your guess here..." rows="5" style="height: 80px;"></textarea>
+      <button id="submit-guess" class="btn btn-submit" style="width: 150px; height: 40px; background: #2B2E4A; color: #fff;">Submit Guess</button>
+    </section>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+  <script src="{{ url_for('static', filename='js/guessing.js') }}"></script>
+</body>
+</html>

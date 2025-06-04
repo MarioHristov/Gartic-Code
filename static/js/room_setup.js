@@ -1,5 +1,4 @@
 // static/js/room_setup.js
-window._skipLeave = false;
 // in your room_setup.js (or before you call io()):
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -105,7 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // full sync: clear & rebuild player list (and settings)
     socket.on('room_state', data => {
         if (data.started) {
-            return window.location.href = `/game/${room}`;
+            window.location.href = `/game/${room}`;
+            return;
         }
         // 1) rebuild players
         list.innerHTML = '';
@@ -115,8 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             li.dataset.userid = p.user_id;
             li.innerHTML = `
       <img src="/static/${p.avatar}" class="slot-avatar" alt="">
-      <span class="slot-name">${p.nickname}</span>
-    `;
+      <span class="slot-name">${p.nickname}</span>`;
             list.appendChild(li);
         });
         // also re-sync settings (if you want)
@@ -153,7 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // enable/disable settings form
         document.getElementById('settings-fieldset').disabled = !isHost;
         // show/hide Start Game
-        console.log(startBtn)
         if (startBtn) startBtn.style.display = isHost ? 'inline-block' : 'none';
     });
 
@@ -190,8 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
         startBtn.style.display = 'inline-block';
         startBtn?.addEventListener('click', () => {
             // prevent our unload-handler from firing
-            window._skipLeave = true;
-
             // tell the server to start
             socket.emit('start_game', {room});
 
@@ -203,21 +199,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // when the server ACKs:
     socket.on('game_started', ({room: r}) => {
         window.location.href = `/game/${r}`;
+
     });
-    // // wire up host controls
-    // if (isHost) {
-    //     document.getElementById('language').addEventListener('change', emitSettingsUpdate);
-    //     document.getElementById('difficulty').addEventListener('change', emitSettingsUpdate);
-    //     startBtn.style.display = 'inline-block';
-    //     // start game button
-    //     document.getElementById('start-game')?.addEventListener('click', () => {
-    //         socket.emit('start_game', {room});
-    //     });
-    // }
-    // socket.on('game_started', ({room: r}) => {
-    //     window._skipLeave = true;
-    //     window.location.href = `/game/${r}`;
-    // });
+
 
     // apply live updates for all clients
     socket.on('settings_updated', ({name, value}) => {
@@ -262,64 +246,28 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => feedback.textContent = '', 2000);
     });
 
-function doLeave() {
-  if (window._skipLeave) return;
-  socket.emit('leave',       { room, user_id: userId });
-  socket.disconnect(true);
-  navigator.sendBeacon('/clear_session');
-}
+    function leave() {
+        socket.emit('leave', {room, user_id: userId});
+        socket.disconnect(true);
+        navigator.sendBeacon('/clear_session');
+    }
 
 // back/forward or reload:
-window.addEventListener('pageshow', event => {
-  const [nav] = performance.getEntriesByType('navigation');
-  const isReload      = nav && nav.type === 'reload';
-  const isBackForward = event.persisted || (nav && nav.type === 'back_forward');
-
-  if (isReload || isBackForward) {
-    doLeave();
-    // send them home
-    window.location.href = '/?room_code=' + encodeURIComponent(room);
-  }
-});
+    window.addEventListener('pageshow', event => {
+        const [nav] = performance.getEntriesByType('navigation');
+        const isReload = nav && nav.type === 'reload';
+        const isBackForward = event.persisted || (nav && nav.type === 'back_forward');
+        if (isReload || isBackForward) {
+            leave();
+            // send them home
+            window.location.href = '/?room_code=' + encodeURIComponent(room);
+        }
+    });
 
 // normal unload (close/tab‐switch):
-window.addEventListener('pagehide', event => {
-  if (event.persisted) return;   // don’t double‐fire on bfcache
-  doLeave();
-});
-
-// // 6) Bust bfcache/back–forward restores too
-//     window.addEventListener('pageshow', event => {
-//         // grab the navigation entry
-//         const [nav] = performance.getEntriesByType('navigation');
-//         const isReload = nav && nav.type === 'reload';
-//         const isBackForward = event.persisted || (nav && nav.type === 'back_forward');
-//
-//         if (isReload || isBackForward) {
-//             // fire our leave logic
-//             socket.emit('leave', {room, user_id: userId});
-//             socket.disconnect(true);
-//
-//             // tell Flask to clear your session
-//             // use Fetch keepalive in case sendBeacon ever flakily arrives late
-//             fetch('/clear_session', {method: 'POST', keepalive: true});
-//
-//             // drop you back to landing with the code pre-filled
-//             window.location.href = '/?room_code=' + encodeURIComponent(room);
-//         }
-//     });
-//     window.addEventListener('pagehide', event => {
-//         // bfcache restore? don’t fire leave twice
-//         if (event.persisted) return;
-//
-//         // 1) let everyone know you’re gone
-//         socket.emit('leave', {room, user_id: userId});
-//
-//         // 2) tear down your socket immediately
-//         socket.disconnect(true);
-//
-//         // 3) drop your Flask session so the next GET /room_setup sees no creds
-//         navigator.sendBeacon('/clear_session');
-//     });
+    window.addEventListener('pagehide', event => {
+        if (event.persisted) return;   // don’t double‐fire on bfcache
+        leave();
+    });
 
 });

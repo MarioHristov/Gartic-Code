@@ -43,13 +43,15 @@ def create_app():
 
     App = Flask(__name__, static_folder='static', template_folder='templates')
     App.config['SECRET_KEY'] = 'replace-with-secure-key'
-    socket_io = SocketIO(App, async_mode='eventlet', cors_allowed_origins="*")
+    socket_io = SocketIO(App, async_mode='eventlet')
+    # async_mode='eventlet', cors_allowed_origins="*"
     # In‐memory game state
     ROOMS = {}  # code → { created_at, started, players, settings }
     # ROOM_PROMPTS = {}  # code → { nickname: prompt }
     CODE_SUBMISSIONS = {}  # code → { nickname: code_str }
     CLIENTS = {}  # sid → { room, user_id }
     ROOM_PROMPTS = {}
+    IN_PLAY = {}
     # ----------------------------------------------------------------
     # Helpers
     # ----------------------------------------------------------------
@@ -145,29 +147,6 @@ def create_app():
         if room['started']:
             return 'Game already started', 410
 
-        # nickname = session.get('nickname')
-        # avatar = session.get('avatar')
-        # uid = session.get('user_id')
-        # if not (nickname and avatar and uid):
-        #     # no session creds → force back to landing
-        #     return redirect(url_for('landing', room_code=room_code))
-        #
-        # # block duplicate‐tab
-        # if any(p['user_id'] == uid for p in room['players']):
-        #     return 'You are already in this lobby.', 403
-        #
-        # entry = {'user_id': uid, 'nickname': nickname, 'avatar': avatar}
-        #
-        # # determine host
-        # is_host = False
-        # if not room['players']:
-        #     room['players'].append(entry)
-        #     is_host = True
-        # else:
-        #     is_host = (room['players'][0]['user_id'] == uid)
-        #     room['players'].append(entry)
-        # just render the page; all join/leave logic is now in socket handlers
-
         nickname = session.get('nickname')
         avatar = session.get('avatar')
         uid = session.get('user_id')
@@ -192,27 +171,28 @@ def create_app():
 
     @App.route('/game/<room_code>')
     def game(room_code):
-        room = ROOMS.get(room_code)
+        snapshot = IN_PLAY.get(room_code)
         # 1) room must exist and have been started
-        if not room or not room['started']:
+        if not snapshot:
+            # Nothing in play under that code → bounce back
             return redirect(url_for('landing'))
 
         # 2) only someone whose user_id is in room['players'] may enter
         uid = session.get('user_id')
-        if not uid or uid not in {p['user_id'] for p in room['players']}:
+        if not uid or uid not in {p['user_id'] for p in snapshot['players']}:
             # send them back (and even prefill the code field if you like)
             return redirect(url_for('landing', room_code=room_code))
 
         # 3) assign prompts by user_id (not nickname) on first visit
         if room_code not in ROOM_PROMPTS:
             ROOM_PROMPTS[room_code] = {}
-            sampled = random.sample(PROMPT_POOL, len(room['players']))
-            for p, prompt in zip(room['players'], sampled):
+            sampled = random.sample(PROMPT_POOL, len(snapshot['players']))
+            for p, prompt in zip(snapshot['players'], sampled):
                 ROOM_PROMPTS[room_code][p['user_id']] = prompt
 
         prompt_text = ROOM_PROMPTS[room_code][uid]
         # pull their display name out of the room list
-        nickname = next(p['nickname'] for p in room['players'] if p['user_id'] == uid)
+        nickname = next(p['nickname'] for p in snapshot['players'] if p['user_id'] == uid)
 
         return render_template(
             'game.html',
@@ -287,7 +267,6 @@ def create_app():
 
         # remove player
         room['players'] = [p for p in room['players'] if p['user_id'] != uid]
-
         leave_room(code)
         emit('user_left', {'user_id': uid}, room=code)
 
@@ -325,9 +304,16 @@ def create_app():
     @socket_io.on('start_game')
     def on_start(data):
         code = data.get('room')
-        if code in ROOMS:
-            ROOMS[code]['started'] = True
-            emit('game_started', data, room=code)
+        room = ROOMS.get(code)
+        if not room:
+            return
+
+        room['started'] = True
+        IN_PLAY[code] = {
+            'players': list(room['players']),  # deep‐copy of player list
+            'settings': dict(room['settings']),  # deep‐copy of settings (if you need them in /game)
+        }
+        emit('game_started', data, room=code)
 
     # noinspection PyTypeChecker
     @socket_io.on('submit_code')
@@ -361,9 +347,4 @@ def create_app():
 
 if __name__ == '__main__':
     app, socketio = create_app()
-    socketio.run(
-        app,
-        host='0.0.0.0',
-        port=5000,
-        debug=True
-    )
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)

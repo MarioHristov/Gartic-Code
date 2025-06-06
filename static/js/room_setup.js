@@ -1,5 +1,6 @@
 // static/js/room_setup.js
 // in your room_setup.js (or before you call io()):
+import { unloadHandler, buildPlayerList } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const startBtn = document.getElementById('start-game');
@@ -86,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ------------------------------------------------------------------
     // 2) Socket.IO & role logic
     // ------------------------------------------------------------------
-    const list = document.querySelector('.player-list');
+    let list = document.querySelector('.player-list');
     list.innerHTML = '';
 
     window.socket = io();
@@ -108,16 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         // 1) rebuild players
-        list.innerHTML = '';
-        data.players.forEach(p => {
-            const li = document.createElement('li');
-            li.className = 'player-slot filled';
-            li.dataset.userid = p.user_id;
-            li.innerHTML = `
-      <img src="/static/${p.avatar}" class="slot-avatar" alt="">
-      <span class="slot-name">${p.nickname}</span>`;
-            list.appendChild(li);
-        });
+        list = buildPlayerList(data, list);
         // also re-sync settings (if you want)
         if (data.settings) {
             document.getElementById('language').value = data.settings.language;
@@ -199,9 +191,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // when the server ACKs:
     socket.on('game_started', ({room: r}) => {
         window.location.href = `/game/${r}`;
-
     });
-
+    socket.on('redirect_to_game', ({room: r}) => {
+        window.location.href = `/game/${r}`;
+    });
 
     // apply live updates for all clients
     socket.on('settings_updated', ({name, value}) => {
@@ -245,29 +238,5 @@ document.addEventListener('DOMContentLoaded', () => {
         feedback.textContent = 'Copied!';
         setTimeout(() => feedback.textContent = '', 2000);
     });
-
-    function leave() {
-        socket.emit('leave', {room, user_id: userId});
-        socket.disconnect(true);
-        navigator.sendBeacon('/clear_session');
-    }
-
-// back/forward or reload:
-    window.addEventListener('pageshow', event => {
-        const [nav] = performance.getEntriesByType('navigation');
-        const isReload = nav && nav.type === 'reload';
-        const isBackForward = event.persisted || (nav && nav.type === 'back_forward');
-        if (isReload || isBackForward) {
-            leave();
-            // send them home
-            window.location.href = '/?room_code=' + encodeURIComponent(room);
-        }
-    });
-
-// normal unload (close/tab‐switch):
-    window.addEventListener('pagehide', event => {
-        if (event.persisted) return;   // don’t double‐fire on bfcache
-        leave();
-    });
-
+    unloadHandler(socket, room, userId);
 });

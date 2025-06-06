@@ -94,6 +94,7 @@
     window.IS_HOST   = {{ 'true' if is_host else 'false' }};
 
 </script>
-<script src="{{ url_for('static', filename='js/room_setup.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/room_setup.js') }}"></script>
 </body>
 </html>

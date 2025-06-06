@@ -191,14 +191,15 @@ def create_app():
                 ROOM_PROMPTS[room_code][p['user_id']] = prompt
 
         prompt_text = ROOM_PROMPTS[room_code][uid]
+
         # pull their display name out of the room list
-        nickname = next(p['nickname'] for p in snapshot['players'] if p['user_id'] == uid)
 
         return render_template(
             'game.html',
             room_code=room_code,
             prompt_text=prompt_text,
-            nickname=nickname
+            players=snapshot['players'],
+            avatars=avatars
         )
 
     @App.route('/clear_session', methods=['POST'])
@@ -216,13 +217,28 @@ def create_app():
     def on_request_room_state(data):
         code = data.get('room')
         room = ROOMS.get(code)
+        default_settings = {}
         if not room:
-            return
-        emit('room_state', {
-            'players': room['players'],
-            'settings': room['settings'],
-            'started': room['started']
-        }, room=request.sid)
+            room = IN_PLAY.get(code)
+            if not room:
+                return;
+
+            prompt_map = ROOM_PROMPTS.get(code, {})
+
+            default_settings = {
+                'players': room['players'],
+                'settings': room['settings'],
+                'promptMap': prompt_map,
+                'started': True
+            }
+        else:
+            default_settings = {
+                'players': room['players'],
+                'settings': room['settings'],
+                'started': False
+            }
+
+        emit('room_state', default_settings, room=request.sid)
 
     @socket_io.on('join')
     def on_join(data):
@@ -310,23 +326,27 @@ def create_app():
 
         room['started'] = True
         IN_PLAY[code] = {
-            'players': list(room['players']),  # deep‐copy of player list
-            'settings': dict(room['settings']),  # deep‐copy of settings (if you need them in /game)
+            'players': room['players'],  # deep‐copy of player list
+            'settings': room['settings']  # deep‐copy of settings (if you need them in /game)
         }
         emit('game_started', data, room=code)
 
-    # noinspection PyTypeChecker
-    @socket_io.on('submit_code')
-    def on_submit_code(data):
-        room_key = data.get('room')
-        user = data.get('username')
-        code_str = data.get('code')
-        CODE_SUBMISSIONS.setdefault(room_key, {})[user] = code_str
-        emit('code_captured', {'username': user}, room=room_key)
+    @socket_io.on('game_end')
+    def on_game_end(data):
+        return
 
-    @socket_io.on('submit_guess')
-    def on_guess(data):
-        emit('guess_submitted', data, room=data['room'])
+
+    # @socket_io.on('submit_code')
+    # def on_submit_code(data):
+    #     room_key = data.get('room')
+    #     user = data.get('username')
+    #     code_str = data.get('code')
+    #     CODE_SUBMISSIONS.setdefault(room_key, {})[user] = code_str
+    #     emit('code_captured', {'username': user}, room=room_key)
+
+    # @socket_io.on('submit_guess')
+    # def on_guess(data):
+    #     emit('guess_submitted', data, room=data['room'])
 
     # noinspection PyTypeChecker
     @socket_io.on('update_settings')

@@ -1,43 +1,60 @@
+<!-- templates/game.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game - Gartic Code</title>
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Gartic Code – Game</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+  <!-- You can add your own CSS rules in static/css/game.css -->
 </head>
 <body>
   <header class="game-header">
-    <div class="round-indicator">Round {{ round_number }}</div>
-    <div class="countdown-timer" id="countdown-timer">{{ countdown }}</div>
+    <h1>Gartic Code</h1>
   </header>
-  <div class="game-layout">
+
+  <main class="game-container">
+    <!-- Left panel: Player list + Timer -->
     <aside class="sidebar">
-      <ul class="player-points">
-        {% for player in players %}
-        <li class="player {{ 'active' if player.active else '' }}">
-          <img src="{{ url_for('static', filename='avatars/' ~ player.avatar) }}" alt="Avatar" class="player-avatar">
-          <span class="nickname">{{ player.nickname }}</span>
-          <span class="points">{{ player.points }}</span>
-        </li>
-        {% endfor %}
-      </ul>
+      <section class="timer-section">
+        <h2>Time Remaining</h2>
+        <div id="timer-countdown" class="timer-display">10:00</div>
+      </section>
+
+      <section class="players-section">
+        <h2>Players</h2>
+        <ul class="player-list">
+          <!-- JS will inject <li> items here -->
+        </ul>
+      </section>
     </aside>
-    <main class="main-content">
-      <section class="prompt-section">
-        <p>{{ prompt_text }}</p>
-      </section>
-      <section class="editor-section">
-        <div id="editor" class="code-editor"></div>
-        <div id="debug-console" class="debug-console"></div>
-        <button id="submit-code" class="btn btn-submit" disabled>Submit Code</button>
-      </section>
-    </main>
-  </div>
+
+    <!-- Right panel: Prompt + Code‐submission form -->
+    <section class="play-area">
+      <div class="prompt-section">
+        <h2>Your Prompt</h2>
+        <p id="prompt-text">{{ prompt_text }}</p>
+      </div>
+      <div class="code-submission">
+        <h2>Submit Your Code</h2>
+        <textarea id="code-input" placeholder="Type your solution here..." rows="10"></textarea>
+        <button id="submit-code-btn">Submit</button>
+        <div id="submission-feedback" class="feedback"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Socket.IO client library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.js"></script>
-  <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+  <!-- Expose room_code & user_id from Flask -->
+  <script>
+    window.ROOM_CODE = "{{ room_code }}";
+    window.USER_ID   = "{{ session['user_id'] }}";
+  </script>
+  <!-- Main game‐page JS -->
+  <script type="module" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/game.js') }}"></script>
 </body>
 </html>

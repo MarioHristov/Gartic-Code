@@ -6,6 +6,7 @@ import datetime
 import eventlet
 eventlet.monkey_patch()
 
+from openai import OpenAI
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from werkzeug.utils import secure_filename
@@ -38,9 +39,8 @@ PROMPT_POOL = [
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-
 def create_app():
-
+    openAIClient = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     App = Flask(__name__, static_folder='static', template_folder='templates')
     App.config['SECRET_KEY'] = 'replace-with-secure-key'
     socket_io = SocketIO(App, async_mode='eventlet')

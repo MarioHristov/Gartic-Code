@@ -10,7 +10,7 @@ from openai import OpenAI
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from werkzeug.utils import secure_filename
-
+from config import Config
 # --------------------------------------------------------------------
 # Constants
 # --------------------------------------------------------------------
@@ -40,14 +40,12 @@ PROMPT_POOL = [
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def create_app():
-    openAIClient = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+    openAIClient = OpenAI(api_key=Config.OPENAI_API_KEY)
     App = Flask(__name__, static_folder='static', template_folder='templates')
-    App.config['SECRET_KEY'] = 'replace-with-secure-key'
+    App.config['SECRET_KEY'] = Config.SECRET_KEY
     socket_io = SocketIO(App, async_mode='eventlet')
-    # async_mode='eventlet', cors_allowed_origins="*"
-    # In‐memory game state
-    ROOMS = {}  # code → { created_at, started, players, settings }
-    # ROOM_PROMPTS = {}  # code → { nickname: prompt }
+    ROOMS = {}
+    ROOM_PROMPTS = {}  # code → { nickname: prompt }
     CODE_SUBMISSIONS = {}  # code → { nickname: code_str }
     CLIENTS = {}  # sid → { room, user_id }
     ROOM_PROMPTS = {}
